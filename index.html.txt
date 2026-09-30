@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio | 作品集</title>
+  
+  <!-- Google Fonts: 现代简洁字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==================== 1. 全局设计变量 ==================== */
+    :root {
+      --bg-color: #fcfcfc;
+      --text-main: #121212;
+      --text-muted: #767676;
+      --card-bg: #f0f0f0;
+      --accent: #2563eb;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      line-height: 1.6;
+      padding: 2rem 5vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ==================== 2. 页眉 & 头部简介 ==================== */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4rem;
+      padding-top: 1rem;
+    }
+
+    .brand .name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .brand .title {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    nav a:hover {
+      color: var(--text-main);
+    }
+
+    .hero {
+      max-width: 680px;
+      margin-bottom: 5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+
+    /* ==================== 3. 过滤器 / 分类标签 ==================== */
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.85rem;
+    }
+
+    .filter-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      color: var(--text-main);
+      border-bottom-color: var(--text-main);
+    }
+
+    /* ==================== 4. 响应式作品网格 (Masonry-style) ==================== */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .work-item {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 4px;
+      background-color: var(--card-bg);
+      opacity: 1;
+      transform: translateY(0);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+    }
+
+    /* 图片与容器比例自适应 */
+    .media-container {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background-color: #e5e5e5;
+    }
+
+    .media-container img, .media-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Hover 放大与信息浮层 */
+    .work-item:hover .media-container img,
+    .work-item:hover .media-container video {
+      transform: scale(1.04);
+    }
+
+    .work-info {
+      padding: 1rem 0.2rem 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .work-title {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .work-category {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* 过滤时的显隐动画样式 */
+    .work-item.hide {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    /* ==================== 5. 大图/视频弹窗 (Lightbox) ==================== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+      padding: 2rem;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content img, .modal-content video {
+      max-width: 100%;
+      max-height: 85vh;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* ==================== 6. 页脚 ==================== */
+    footer {
+      margin-top: 8rem;
+      padding-top: 2rem;
+      border-top: 1px solid #eaeaea;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 640px) {
+      body { padding: 1.5rem 1rem; }
+      header { margin-bottom: 2.5rem; }
+      .hero h1 { font-size: 1.6rem; }
+      .portfolio-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+      footer { flex-direction: column; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 页眉与导航 -->
+  <header>
+    <div class="brand">
+      <div class="name">YOUR NAME</div>
+      <div class="title">Visual Designer & Illustrator</div>
+    </div>
+    <nav>
+      <a href="#works">Works</a>
+      <a href="#about">About</a>
+      <a href="mailto:your@email.com">Contact</a>
+    </nav>
+  </header>
+
+  <!-- 个人宣言 / 视觉标语 -->
+  <section class="hero">
+    <h1>Exploring visual narratives through geometry, color, and motion design.</h1>
+  </section>
+
+  <!-- 分类过滤器 -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="illustration">Illustration</button>
+    <button class="filter-btn" data-filter="design">Design & UI</button>
+    <button class="filter-btn" data-filter="motion">Motion</button>
+  </div>
+
+  <!-- 作品展示网格 -->
+  <main class="portfolio-grid" id="works">
+
+    <!-- 作品项 1：图片 (示例占位图) -->
+    <article class="work-item" data-category="illustration">
+      <div class="media-container">
+        <img loading="lazy" src="https://picsum.photos/800/600?random=1" alt="Project 1" data-full="https://picsum.photos/1600/1200?random=1">
+      </div>
+      <div class="work-info">
+        <div class="work-title">Geometric Landscape</div>
+        <div class="work-category">Illustration</div>
+      </div>
+    </article>
+
+    <!-- 作品项 2：设计项目 -->
+    <article class="work-item" data-category="design">
+      <div class="media-container">
+        <img loading="lazy" src="https://picsum.photos/800/1000?random=2" alt="Project 2" data-full="https://picsum.photos/1600/2000?random=2">
+      </div>
+      <div class="work-info">
+        <div class="work-title">Spatial System Concept</div>
+        <div class="work-category">Design</div>
+      </div>
+    </article>
+
+    <!-- 作品项 3：预留视频/动效卡片 (后期更换为 <video> 标签) -->
+    <article class="work-item" data-category="motion">
+      <div class="media-container">
+        <!-- 后续引入视频时，使用下方代码结构：
+        <video autoplay loop muted playsinline poster="cover.jpg">
+          <source src="your-video.mp4" type="video/mp4">
+        </video> -->
+        <img loading="lazy" src="https://picsum.photos/800/600?random=3" alt="Project 3" data-full="https://picsum.photos/1600/1200?random=3">
+      </div>
+      <div class="work-info">
+        <div class="work-title">Kinetic Identity Design</div>
+        <div class="work-category">Motion / 3D</div>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- 全屏预览弹窗 -->
+  <div class="modal" id="modal">
+    <div class="modal-content" id="modal-content">
+      <!-- 动态插入的大图或视频 -->
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer>
+    <div>© <span id="year"></span> YOUR NAME. All rights reserved.</div>
+    <div>Hosted via GitHub Pages</div>
+  </footer>
+
+  <!-- ==================== 7. 交互 JavaScript ==================== -->
+  <script>
+    // 1. 设置页脚年份
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 2. 分类筛选逻辑
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const workItems = document.querySelectorAll('.work-item');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        workItems.forEach(item => {
+          if (filter === 'all' || item.dataset.category === filter) {
+            item.classList.remove('hide');
+          } else {
+            item.classList.add('hide');
+          }
+        });
+      });
+    });
+
+    // 3. 点击弹窗预览 (Lightbox)
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modal-content');
+
+    workItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const img = item.querySelector('img');
+        const fullSrc = img ? img.dataset.full : null;
+
+        if (fullSrc) {
+          modalContent.innerHTML = `<img src="${fullSrc}" alt="Expanded view">`;
+          modal.classList.add('active');
+        }
+      });
+    });
+
+    // 点击背景关闭弹窗
+    modal.addEventListener('click', () => {
+      modal.classList.remove('active');
+      modalContent.innerHTML = '';
+    });
+  </script>
+</body>
+</html>
